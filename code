@@ -1,0 +1,53 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import confusion_matrix
+
+import warnings
+warnings.filterwarnings('ignore')
+
+df = pd.read_csv(r'D:\CSE ENGG NOTES\6th SEMESTER\ML LAB\Datasets\heart.csv')
+
+df.head()
+
+df.shape
+
+df.info()
+
+plt.figure(figsize=(5,5))
+sns.countplot(x='target', data=df)
+plt.title("Heart Disease Distribution")
+plt.show()
+
+plt.figure(figsize=(12,12))
+sns.heatmap(df.corr(), annot=True, cmap='coolwarm', fmt='.2f')
+plt.title("Feature Correlation")
+plt.show()
+
+df = pd.get_dummies(df, columns=['cp'], drop_first=True)
+
+scaler = StandardScaler()
+scaled_features = scaler.fit_transform(df.drop('target', axis=1))
+df_scaled = pd.DataFrame(scaled_features, columns=df.drop('target', axis=1).colu
+df_scaled['target'] = df['target']
+
+X = df_scaled.drop('target', axis=1)
+y = df_scaled['target']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
+print(f"Training data shape: {X_train.shape}")
+print(f"Test data shape: {X_test.shape}")
+
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+print(f"Accuracy: {accuracy_score(y_test, y_pred)*100:.2f}%")
+
+conf_matrix = confusion_matrix(y_test, y_pred)
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues')
+plt.title("Confusion Matrix")
+plt.show()
